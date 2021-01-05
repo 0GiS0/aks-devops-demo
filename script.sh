@@ -41,3 +41,9 @@ pbcopy < ~/.kube/config
 
 #Attach ACR to my existing AKS
 az aks update -n $AKS_NAME -g $RESOURCE_GROUP --attach-acr $ACR_NAME
+
+#Get pods
+kubectl get pod
+
+#Get service
+kubectl get svc
