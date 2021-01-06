@@ -1,3 +1,4 @@
+# https://docs.microsoft.com/en-us/azure/aks/kubernetes-action
 # This is a basic workflow to help you get started with Actions
 
 name: Deploy on AKS
@@ -15,7 +16,8 @@ env:
   REGISTRY_NAME: returngis
   CLUSTER_NAME: returngis
   CLUSTER_RESOURCE_GROUP: AKS-DevOps-Demos
-  NAMESPACE: default
+  NAMESPACE: hello-world
+  SECRET: hello-secret
   APP_NAME: hello-from-actions
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -42,8 +44,31 @@ jobs:
           docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
     
       # Set the target Azure Kubernetes Service (AKS) cluster. 
-      # - uses: azure/aks-set-context@v1
-      #   with:
-      #     creds: '${{ secrets.AZURE_CREDENTIALS }}'
-      #     cluster-name: ${{ env.CLUSTER_NAME }}
-      #     resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+      - uses: azure/aks-set-context@v1
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: ${{ env.CLUSTER_NAME }}
+          resource-group: ${{ env.CLUSTER_RESOURCE_GROUP }}
+      # Create namespace if doesn't exist
+      - run: |
+        kubectl create namespace ${{ env.NAMESPACE }} --dry-run -o json | kubectl apply -f -
+      # Create image pull secret for ACR
+      - uses: azure/k8s-create-secret@v1
+        with:
+          container-registry-url: ${{ env.REGISTRY_NAME }}.azurecr.io
+          container-registry-username: ${{ secrets.REGISTRY_USERNAME }}
+          container-registry-password: ${{ secrets.REGISTRY_PASSWORD }}
+          secret-name: ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
+          force: true
+      # Deploy app to AKS
+      - uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s/hello-deployment.yml
+            k8s/hello-service.yml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.APP_NAME }}:${{ github.sha }}
+          imagepullsecrets: |
+            ${{ env.SECRET }}
+          namespace: ${{ env.NAMESPACE }}
