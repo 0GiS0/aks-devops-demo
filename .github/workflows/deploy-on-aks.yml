@@ -1,4 +1,10 @@
-on: [push]
+name: AKS-DevOps-Demo
+
+# Controls when the action will run. 
+on: 
+  push:
+    branches:
+      - main
 
 # Environment variables available to all jobs and steps in this workflow
 env:
