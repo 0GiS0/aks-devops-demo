@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: hello
-        image: returngis.azurecr.io/0gis0/aks-devops-demo
+        image: returngis.azurecr.io/hello-from-actions
         resources:
           requests:
             cpu: 100m
