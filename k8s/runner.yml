@@ -2,8 +2,9 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: Runner
 metadata:
-  name: my-runner
+  name: dind-runner
 spec:
   repository: 0GiS0/aks-devops-demo
+  image: summerwind/actions-runner-dind
   dockerdWithinRunnerContainer: true
   env: []
