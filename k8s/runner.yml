@@ -2,7 +2,8 @@
 apiVersion: actions.summerwind.dev/v1alpha1
 kind: Runner
 metadata:
-  name: example-runner
+  name: my-runner
 spec:
   repository: 0GiS0/aks-devops-demo
+  dockerdWithinRunnerContainer: true
   env: []
